@@ -90,10 +90,65 @@ function lister() {
   console.log(listerObservations(observations));
 }
 
+// choix 3
+
+async function rechercher() {
+  console.log('--- Rechercher ---');
+  console.log('1. Par point (identifiant)');
+  console.log('2. Par parcelle');
+  console.log("3. Les observations d'une texture");
+  const sousChoix = await demander('Votre choix : ');
+  if (sousChoix === null) return;
+
+  if (sousChoix === '1') {
+    const reponse = await demander('Point : ');
+    if (reponse === null) return;
+    const id = reponse.toUpperCase();
+    const observation = trouverParId(observations, id);
+    console.log(observation === undefined ? `Observation ${id} introuvable.` : formaterObservation(observation));
+  } else if (sousChoix === '2') {
+    const reponse = await demander('Parcelle : ');
+    if (reponse === null) return;
+    const parcelle = reponse.toUpperCase();
+    const trouvees = filtrerParParcelle(observations, parcelle);
+    console.log(`${trouvees.length} observation(s) sur la parcelle ${parcelle} :`);
+    console.log(listerObservations(trouvees));
+  } else if (sousChoix === '3') {
+    const reponse = await demander('Texture : ');
+    if (reponse === null) return;
+    const texture = reponse.toLowerCase();
+    const trouvees = filtrerParTexture(observations, texture);
+    console.log(`${trouvees.length} observation(s) de texture ${texture} :`);
+    console.log(listerObservations(trouvees));
+  } else {
+    console.log('Choix inconnu : retour au menu.');
+  }
+}
+
+// choix 4
+
+async function trier() {
+  console.log('--- Trier ---');
+  console.log('1. Par pH croissant');
+  console.log('2. Par pH décroissant');
+  const sousChoix = await demander('Votre choix : ');
+  if (sousChoix === null) return;
+
+  if (sousChoix === '1') {
+    console.log(listerObservations(trierParPh(observations)));
+  } else if (sousChoix === '2') {
+    console.log(listerObservations(trierParPhDecroissant(observations)));
+  } else {
+    console.log('Choix inconnu : retour au menu.');
+  }
+}
+
 async function executerChoix(choix) {
   switch (choix) {
     case '1': await ajouter(); break;
     case '2': lister(); break;
+    case '3': await rechercher(); break;
+    case '4': await trier(); break;
     default:
       console.log(`Choix inconnu : « ${choix} ». Tapez un chiffre du menu.`);
   }
