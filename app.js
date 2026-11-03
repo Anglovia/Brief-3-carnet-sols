@@ -178,6 +178,53 @@ function synthese() {
   console.log('Ces points ne sont pas un diagnostic de fertilisation : ils servent à préparer l\'échange avec le coach.');
 }
 
+// choix 6
+
+async function supprimer() {
+  const reponse = await demander('Identifiant : ');
+  if (reponse === null) return;
+  const id = reponse.toUpperCase();
+
+  const supprimee = supprimerObservation(observations, id);
+  if (supprimee === undefined) {
+    console.log(`Observation ${id} introuvable.`);
+    return;
+  }
+
+  await enregistrerJson(FICHIER_DONNEES, observations);
+  console.log(`Observation ${id} supprimée. Le carnet compte ${observations.length} observation(s).`);
+}
+
+// choix 7
+
+async function modifier() {
+  const reponseId = await demander('Identifiant : ');
+  if (reponseId === null) return;
+  const champ = await demander(`Champ à modifier (${CHAMPS_MODIFIABLES.join(', ')}) : `);
+  if (champ === null) return;
+  const reponseValeur = await demander('Nouvelle valeur : ');
+  if (reponseValeur === null) return;
+
+  const id = reponseId.toUpperCase();
+  // Même normalisation qu'à l'ajout : parcelle en majuscules, texture et humidité en minuscules.
+  let valeur = reponseValeur;
+  if (champ === 'parcelle') valeur = valeur.toUpperCase();
+  if (champ === 'texture' || champ === 'etatHumidite') valeur = valeur.toLowerCase();
+
+  const erreurs = modifierObservation(observations, id, champ, valeur);
+  if (erreurs.length > 0) {
+    console.log('Modification refusée :');
+    for (const erreur of erreurs) {
+      console.log(`  - ${erreur}`);
+    }
+    return;
+  }
+
+  await enregistrerJson(FICHIER_DONNEES, observations);
+  console.log(`Observation ${id} modifiée.`);
+}
+
+
 async function executerChoix(choix) {
   switch (choix) {
     case '1': await ajouter(); break;
@@ -185,6 +232,8 @@ async function executerChoix(choix) {
     case '3': await rechercher(); break;
     case '4': await trier(); break;
     case '5': synthese(); break;
+    case '6': await supprimer(); break;
+    case '7': await modifier(); break;
     default:
       console.log(`Choix inconnu : « ${choix} ». Tapez un chiffre du menu.`);
   }
