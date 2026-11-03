@@ -143,12 +143,48 @@ async function trier() {
   }
 }
 
+// choix 5
+
+function synthese() {
+  console.log('--- Synthèse des observations ---');
+  console.log(`Nombre d'observations : ${observations.length}`);
+
+  const extremes = phMinMax(observations);
+  if (extremes === null) {
+    console.log('pH minimum et maximum : aucune donnée');
+  } else {
+    console.log(`pH minimum : ${extremes.min} · pH maximum : ${extremes.max}`);
+  }
+
+  console.log('Observations par texture :');
+  for (const [texture, nombre] of Object.entries(compterParTexture(observations))) {
+    console.log(`  ${texture} : ${nombre}`);
+  }
+
+  const frequente = textureLaPlusFrequente(observations);
+  if (frequente === null) {
+    console.log('Texture la plus fréquente : aucune donnée');
+  } else {
+    console.log(`Texture la plus fréquente : ${frequente.texture} (${frequente.nombre} observation(s))`);
+  }
+
+  const aDiscuter = pointsADiscuter(observations, SEUIL_PH_A_DISCUTER);
+  console.log(`Points à discuter avec le coach (pH < ${SEUIL_PH_A_DISCUTER}) : ${aDiscuter.length}`);
+  for (const observation of aDiscuter) {
+    console.log(`  ${formaterObservation(observation)}`);
+  }
+
+  console.log('Rappels : le pH est sans unité. Aucune moyenne de pH n\'est calculée (échelle logarithmique).');
+  console.log('Ces points ne sont pas un diagnostic de fertilisation : ils servent à préparer l\'échange avec le coach.');
+}
+
 async function executerChoix(choix) {
   switch (choix) {
     case '1': await ajouter(); break;
     case '2': lister(); break;
     case '3': await rechercher(); break;
     case '4': await trier(); break;
+    case '5': synthese(); break;
     default:
       console.log(`Choix inconnu : « ${choix} ». Tapez un chiffre du menu.`);
   }
